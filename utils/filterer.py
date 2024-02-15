@@ -1,6 +1,4 @@
 import random
-
-from exceptions.InvalidLimitException import InvalidLimitException
 from exceptions.InvalidParamException import InvalidParamException
 from service.users import getUsers, getUser
 from utils.consts import MAX_VALUES
@@ -12,24 +10,24 @@ class Filterer:
     @classmethod
     def filter(cls, params: dict, one=False):
 
-        limit = MAX_VALUES
         sex = "all"
         age = "all"
         max_age = "all"
         min_age = "all"
+        n = 20
         nationality = "all"
 
         try:
+            if "n" in params:
+                if not str(params.get("n")).isnumeric():
+                    raise InvalidParamException("n", "a number")
+                if int(params.get("n")) > MAX_VALUES:
+                    raise InvalidParamException("n", "less than <"+str(MAX_VALUES)+">")
+                n = int(params.get("n"))
             if "nationality" in params:
                 if str(params.get("nationality")) not in getAvailableCountries():
                     raise InvalidParamException("nationality", "one of these: " + str(getAvailableCountries()))
                 nationality = str(params.get("nationality"))
-            if "limit" in params:
-                if not str(params.get("limit")).isnumeric():
-                    raise InvalidParamException("limit", "a number")
-                if int(params.get("limit")) > MAX_VALUES:
-                    raise InvalidParamException("limit", "less than <"+str(MAX_VALUES)+">")
-                limit = int(params.get("limit"))
             if "sex" in params:
                 if str(params.get("sex")) != "male" and str(params.get("sex")) != "female":
                     raise InvalidParamException("sex", "equals to <male> or <female>")
@@ -53,11 +51,11 @@ class Filterer:
                         max_age = int(params.get("max_age"))
             if one:
                 return getUser(sex, age, max_age, min_age, nationality)
-            return getUsers(sex, age, max_age, min_age, nationality)[0:limit]
+            return getUsers(n, sex, age, max_age, min_age, nationality)
 
         except InvalidParamException as exc:
             return {
                 "error": True,
-                "code": 400,
+                "code": exc.code,
                 "message": exc.message
-            }, 400
+            }, exc.code

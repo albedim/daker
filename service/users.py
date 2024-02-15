@@ -114,9 +114,9 @@ def getUser(sex, age, max_age, min_age, nationality):
         "profession": user.generateRandomProfession().capitalize()
     }
 
-def getUsers(sex, age, max_age, min_age, nationality):
+def getUsers(n, sex, age, max_age, min_age, nationality):
     users = []
-    for i in range(50):
+    for i in range(n):
         if min_age != "all":
             if max_age != "all":
                 user = User(age, nationality, sex, min_age, max_age)
